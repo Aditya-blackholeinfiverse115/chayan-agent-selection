@@ -52,9 +52,10 @@ describe("TC-R04 — classify-and-format (suspended) is deterministic", () => {
       actor: "intent-router", action: "task.route",
       context: { task: "classify-and-format" },
     });
+    const parsed = JSON.parse(first);
     expect(allIdentical).toBe(true);
-    expect(JSON.parse(first).proposal.constraints.lifecycle_valid).toBe(false);
-    expect(JSON.parse(first).proposal.governance_request).toBeNull();
+    expect(parsed.proposal.constraints.lifecycle_valid).toBe(false);
+    expect(parsed.proposal.governance_request).toBeNull();
   });
 });
 
@@ -66,8 +67,9 @@ describe("TC-R05 — unknown task is deterministic", () => {
       actor: "intent-router", action: "task.route",
       context: { task: "unknown.task" },
     });
+    const parsed = JSON.parse(first);
     expect(allIdentical).toBe(true);
-    expect(JSON.parse(first).selection.agents).toEqual([]);
+    expect(parsed.selection.agents).toEqual([]);
   });
 });
 

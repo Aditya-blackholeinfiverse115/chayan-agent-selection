@@ -1,6 +1,13 @@
+/**
+ * NOTE: The registry, validateStructure, and buildActionProposal below are
+ * intentional inline copies for demo/replay purposes only.
+ * They mirror agent-sandbox exactly. When cross-repo imports are available,
+ * replace with direct imports from Sūtradhāra.
+ */
+
 import { selectAgents } from "./selectAgents.js";
 
-// ─── Inline registry ──────────────────────────────────────────────────────────
+// ─── Inline registry (mirrors agent-sandbox AgentRegistry) ───────────────────
 
 const REGISTRY = [
   { id: 1, name: "Text Summarizer",     lifecycle_state: "Active" },
