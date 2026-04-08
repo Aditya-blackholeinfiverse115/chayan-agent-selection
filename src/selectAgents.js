@@ -1,4 +1,4 @@
-import { TASK_MAP } from "./taskMap.js";
+import { TASK_MAP, FALLBACK_AGENTS } from "./taskMap.js";
 
 /**
  * selectAgents
@@ -7,11 +7,14 @@ import { TASK_MAP } from "./taskMap.js";
  * Returns a structured agent_selection_output for Layer-2 (Sūtradhāra).
  *
  * @param {{ actor: string, action: string, context: { task: string } }} intent
- * @returns {{ actor: string, action: string, agents: string[], sequence: string[], context: object }}
+ * @returns {{ actor, action, agents, sequence, context, selection_metadata }}
  */
 export function selectAgents(intent) {
   const { actor, action, context = {} } = intent;
-  const agents = TASK_MAP[context.task] ?? [];
+
+  const mapped = TASK_MAP[context.task];
+  const fallback_used = mapped === undefined;
+  const agents = fallback_used ? [...FALLBACK_AGENTS] : [...mapped];
 
   return {
     actor,
@@ -19,5 +22,10 @@ export function selectAgents(intent) {
     agents,
     sequence: [...agents],
     context,
+    selection_metadata: {
+      source: "taskMap",
+      confidence: "deterministic",
+      fallback_used,
+    },
   };
 }

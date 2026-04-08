@@ -43,21 +43,23 @@ describe("TC-03 — translate-and-summarize maps to agents [5, 1]", () => {
   });
 });
 
-// ─── TC-04  Unknown task — empty agents ──────────────────────────────────────
+// ─── TC-04  Unknown task — fallback used ─────────────────────────────────────
 
-describe("TC-04 — unknown task returns empty agents and sequence", () => {
-  it("returns empty arrays, does not throw", () => {
+describe("TC-04 — unknown task uses fallback, fallback_used=true", () => {
+  it("returns fallback agents and marks fallback_used", () => {
     const output = selectAgents(base({ context: { task: "unknown.task" } }));
 
-    expect(output.agents).toEqual([]);
-    expect(output.sequence).toEqual([]);
+    expect(Array.isArray(output.agents)).toBe(true);
+    expect(output.selection_metadata.fallback_used).toBe(true);
+    expect(output.selection_metadata.source).toBe("taskMap");
+    expect(output.selection_metadata.confidence).toBe("deterministic");
   });
 });
 
 // ─── TC-05  Output shape ─────────────────────────────────────────────────────
 
 describe("TC-05 — output always contains all required fields", () => {
-  it("returns actor, action, agents, sequence, context", () => {
+  it("returns actor, action, agents, sequence, context, selection_metadata", () => {
     const output = selectAgents(base());
 
     expect(output).toHaveProperty("actor", "intent-router");
@@ -65,6 +67,7 @@ describe("TC-05 — output always contains all required fields", () => {
     expect(Array.isArray(output.agents)).toBe(true);
     expect(Array.isArray(output.sequence)).toBe(true);
     expect(typeof output.context).toBe("object");
+    expect(typeof output.selection_metadata).toBe("object");
   });
 });
 
@@ -78,5 +81,33 @@ describe("TC-06 — sequence is an independent copy of agents", () => {
     output.agents.push("99");
 
     expect(output.sequence).toEqual(sequenceBefore);
+  });
+});
+
+// ─── TC-07  selection_metadata — known task ──────────────────────────────────
+
+describe("TC-07 — selection_metadata on known task", () => {
+  it("source=taskMap, confidence=deterministic, fallback_used=false", () => {
+    const output = selectAgents(base());
+
+    expect(output.selection_metadata).toEqual({
+      source: "taskMap",
+      confidence: "deterministic",
+      fallback_used: false,
+    });
+  });
+});
+
+// ─── TC-08  selection_metadata — unknown task ────────────────────────────────
+
+describe("TC-08 — selection_metadata on unknown task", () => {
+  it("source=taskMap, confidence=deterministic, fallback_used=true", () => {
+    const output = selectAgents(base({ context: { task: "unknown.task" } }));
+
+    expect(output.selection_metadata).toEqual({
+      source: "taskMap",
+      confidence: "deterministic",
+      fallback_used: true,
+    });
   });
 });
